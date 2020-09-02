@@ -7,50 +7,66 @@
 // 4. Voto
 
 $(document).ready(function () {
-    // Reset del campo di input
-    $('#search-input').val('');
-
+    $('#search-input').focus();
+    // Al click del tasto 'search' invoco la funzione 'searchMovies'
     $('#search-btn').click(searchMovies);
 
+    // Premendo 'invio' invoco la funzione 'searchMovies'
     $('#search-input').keydown(function () {
         if (event.which == 13) {
             searchMovies();
+            $(this).blur();
         }
     });
 });
 
 // *** FUNCTIONS *** //
+// Ricerca dei film e stampa sul DOM dei risultati
 function searchMovies() {
+    // Memorizzazione del valore dell'input
     var userQuery = $('#search-input').val();
-    $('#results').empty();
-    $.ajax({
-        url: 'https://api.themoviedb.org/3/search/movie',
-        method: 'GET',
-        data: {
-            api_key: '5735ba8aa714f2161c6a9f7f267223ef',
-            query: userQuery,
-            language: 'it-IT'
-        },
-        success: function (obj) {
-            var source = $('#movie-template').html();
-            var template = Handlebars.compile(source);
+    if (userQuery.trim()) {
+        // Reset del campo di input
+        $('#search-input').val('');
+        // Svuoto il contenitore dei risultati prima di ogni nuova ricerca
+        $('#results').empty();
 
-            for (var i = 0; i < obj.total_results; i++) {
-                var thisMovie = obj.results[i];
+        // Chiamata AJAX per effettuare la ricerca e stampare sul DOM i risultati con HB
+        $.ajax({
+            url: 'https://api.themoviedb.org/3/search/movie',
+            method: 'GET',
+            data: {
+                api_key: '5735ba8aa714f2161c6a9f7f267223ef',
+                query: userQuery,
+                language: 'it-IT'
+            },
+            success: function (obj) {
+                var source = $('#movie-template').html();
+                var template = Handlebars.compile(source);
 
-                var sample = {
-                    title: thisMovie.title,
-                    original_title: thisMovie.original_title,
-                    language: thisMovie.original_language,
-                    vote: thisMovie.vote_average
+                if (obj.total_results > 0) {
+                    for (var i = 0; i < obj.total_results; i++) {
+                        var thisMovie = obj.results[i];
+
+                        var sample = {
+                            title: thisMovie.title,
+                            original_title: thisMovie.original_title,
+                            language: thisMovie.original_language,
+                            vote: thisMovie.vote_average
+                        };
+
+                        var html = template(sample);
+                        $('#results').append(html);
+                    }
+                } else {
+                    $('#results').append('Non ci sono risultati');
                 }
-
-                var html = template(sample);
-                $('#results').append(html);
+            },
+            error: function () {
+                alert('Errore');
             }
-        },
-        error: function () {
-            alert('Errore');
-        }
-    });
+        });
+    } else {
+        $('#search-input').val('');
+    }
 }
