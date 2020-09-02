@@ -12,6 +12,19 @@
 </head>
 
 <body>
+    <input id="search-input" type="text" placeholder="Cerca...">
+    <button id="search-btn">Search</button>
+
+    <div id="results"></div>
+
+    <script id="movie-template" type="text/x-handlebars-template">
+        <ul>
+            <li>Titolo: {{title}}</li>
+            <li>Titolo originale: {{original_title}}</li>
+            <li>Lingua: {{language}}</li>
+            <li>Voto medio: {{vote}}</li>
+        </ul>
+    </script>
 
     <script src="js/script.js" charset="utf-8"></script>
 </body>
