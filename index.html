@@ -25,7 +25,7 @@
             <li>Titolo: {{title}}</li>
             <li>Titolo originale: {{original_title}}</li>
             <li>Lingua: {{language}}</li>
-            <li>Voto medio: {{vote}}</li>
+            <li>Voto medio: {{#each vote}} {{{this}}} {{/each}} </li>
         </ul>
     </script>
 
