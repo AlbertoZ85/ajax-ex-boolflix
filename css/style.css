@@ -21,3 +21,7 @@ ul {
     list-style: none;
     margin: 20px 0;
 }
+
+.language img {
+    width: 20px;
+}

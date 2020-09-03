@@ -15,43 +15,47 @@
 // https://api.themoviedb.org/3/search/tv?api_key=e99307154c6dfb0b4750f6603256716d&language=it_IT&query=scrubs
 
 $(document).ready(function () {
-    // Autofocus input al caricamento della pagina
     $('#search-input').focus();
-    // Al click del tasto 'search' invoco la funzione 'searchMovies'
-    $('#search-btn').click(movies);
-
-    // Premendo 'invio' invoco la funzione 'searchMovies'
+    // Al click del tasto 'search' invoco la funzione 'init'
+    $('#search-btn').click(init);
+    // Premendo 'invio' invoco la funzione 'init'
     $('#search-input').keydown(function () {
         if (event.which == 13 || event.keyCode == 13) {
-            movies();
+            init();
         }
     });
 });
 
 // *** FUNCTIONS *** //
-// Ricerca dei film e stampa sul DOM dei risultati con la function 'printMovies'
-function movies() {
+// Inizializzazione di ricerca e stampa dei risultati
+function init() {
     // Memorizzazione del valore dell'input
     var userQuery = $('#search-input').val();
-    if (userQuery.trim()) {
-        // Reset del campo di input
-        $('#search-input').val('');
-        // Svuoto il contenitore dei risultati prima di ogni nuova ricerca e ripristino il focus all'input
-        $('#results').empty();
-        $('#search-input').focus();
+    // Reset del campo di input
+    $('#search-input').val('');
+    // Svuoto il contenitore dei risultati prima di ogni nuova ricerca
+    $('#results').empty();
+    $('#search-input').focus();
+    // Invoco le funzioni che effettuano ricerca e stampa del titolo richiesto nelle varie categorie
+    query(userQuery, 'movie');
+    query(userQuery, 'tv');
+}
 
+// Ricerca dei film e stampa sul DOM dei risultati con la function 'listPrint'
+function query(input, type) {
+    if (input.trim()) {
         // Chiamata AJAX per effettuare la ricerca e stampare sul DOM i risultati con HB
         $.ajax({
-            url: 'https://api.themoviedb.org/3/search/movie',
+            url: `https://api.themoviedb.org/3/search/${type}`,
             method: 'GET',
             data: {
                 api_key: '5735ba8aa714f2161c6a9f7f267223ef',
                 language: 'it-IT',
-                query: userQuery
+                query: input
             },
             success: function (obj) {
                 if (obj.total_results > 0) {
-                    printMovies(obj)
+                    listPrint(obj, type)
                 } else {
                     $('#results').append('Non ci sono risultati');
                 }
@@ -65,19 +69,30 @@ function movies() {
     }
 }
 
-// Stampa dei risultati (movies)
-function printMovies(obj) {
-    var source = $('#movie-template').html();
+// Stampa dei risultati in base al tipo (movie, tv...)
+function listPrint(obj, type) {
+    var title, originalTitle;
+
+    if (type == 'movie') {
+        title = 'title';
+        originalTitle = 'original_title';
+    } else if (type == 'tv') {
+        title = 'name';
+        originalTitle = 'original_name';
+    }
+
+    var source = $('#item-template').html();
     var template = Handlebars.compile(source);
 
     for (var i = 0; i < obj.total_results; i++) {
         var thisResult = obj.results[i];
 
         var sample = {
-            'title': thisResult.title,
-            'original_title': thisResult.original_title,
-            'language': thisResult.original_language.toUpperCase(),
-            'vote': [thisResult.vote_average, stars(thisResult.vote_average)]
+            'title': thisResult[title],
+            'original_title': thisResult[originalTitle],
+            'language': flags(thisResult.original_language),
+            'vote': [thisResult.vote_average, stars(thisResult.vote_average)],
+            'type': type
         };
 
         var html = template(sample);
@@ -107,11 +122,14 @@ function stars(num) {
     // return star;
 }
 
-// Modificando la function: printMovies(obj, type)
-
-// Flags al posto di language, con this.original_language come argomento
-// function flags(str) {
-    // 1. implementare solo 2 lingue: 'it' 'en'
-    // 2. per ciascuna di queste due visualizzare l'immagine opportuna e ritornarla
-    // 3. altrimenti ritornare 'it' o 'en'
-// }
+// Gestione della visualizzazione della lingua tramite bandiere (se disponibili)
+function flags(str) {
+    switch (str) {
+        case 'it':
+            return ['img/it.png'];
+        case 'en':
+            return ['img/uk.png', 'img/usa.png'];
+        default:
+            return [str];
+    }
+}

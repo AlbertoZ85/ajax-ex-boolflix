@@ -20,12 +20,15 @@
         <div id="results"></div>
     </div>
 
-    <script id="movie-template" type="text/x-handlebars-template">
-        <ul>
-            <li>Titolo: {{title}}</li>
-            <li>Titolo originale: {{original_title}}</li>
-            <li>Lingua: {{language}}</li>
-            <li>Voto medio: {{#each vote}} {{{this}}} {{/each}} </li>
+    <script id="item-template" type="text/x-handlebars-template">
+        <ul class="details">
+            <li class="title">Titolo: {{title}}</li>
+            <li class="original-title">Titolo originale: {{original_title}}</li>
+            <li class="language">Lingua:
+                {{#each language}} <img src="{{this}}" alt="{{this}}"> {{/each}}
+            </li>
+            <li class="vote-average">Voto medio: {{#each vote}} {{{this}}} {{/each}} </li>
+            <li class="type">Tipo: {{type}}</li>
         </ul>
     </script>
 
