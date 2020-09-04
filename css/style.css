@@ -17,6 +17,10 @@ h1 {
     color: #e50914;
 }
 
+h2 {
+    display: none;
+}
+
 ul {
     list-style: none;
     margin: 20px 0;

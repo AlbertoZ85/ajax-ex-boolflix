@@ -17,7 +17,10 @@
         <input id="search-input" type="text" placeholder="Cerca...">
         <button id="search-btn">Search</button>
 
-        <div id="results"></div>
+        <h2 id="movie-heading">Film</h2>
+        <div id="movie-covers"></div>
+        <h2 id="tv-heading">Serie TV</h2>
+        <div id="tv-covers"></div>
     </div>
 
     <script id="item-template" type="text/x-handlebars-template">
@@ -25,7 +28,11 @@
             <li class="title">Titolo: {{title}}</li>
             <li class="original-title">Titolo originale: {{original_title}}</li>
             <li class="language">Lingua:
-                {{#each language}} <img src="{{this}}" alt="{{this}}"> {{/each}}
+                {{#if (isNotString flags)}}
+                    {{#each flags}} <img src="img/{{this}}.png" alt="{{this}}"> {{/each}}
+                {{else}}
+                    {{language}}
+                {{/if}}                
             </li>
             <li class="vote-average">Voto medio: {{#each vote}} {{{this}}} {{/each}} </li>
             <li class="type">Tipo: {{type}}</li>

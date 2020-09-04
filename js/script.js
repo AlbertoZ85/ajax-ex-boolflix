@@ -33,8 +33,8 @@ function init() {
     var userQuery = $('#search-input').val();
     // Reset del campo di input
     $('#search-input').val('');
-    // Svuoto il contenitore dei risultati prima di ogni nuova ricerca
-    $('#results').empty();
+    // Svuoto i contenitori dei risultati prima di ogni nuova ricerca
+    $('[id$="covers"]').empty();
     $('#search-input').focus();
     // Invoco le funzioni che effettuano ricerca e stampa del titolo richiesto nelle varie categorie
     query(userQuery, 'movie');
@@ -57,7 +57,7 @@ function query(input, type) {
                 if (obj.total_results > 0) {
                     listPrint(obj, type)
                 } else {
-                    $('#results').append('Non ci sono risultati');
+                    $(`#${type}-covers`).append('Non ci sono risultati');
                 }
             },
             error: function () {
@@ -71,16 +71,6 @@ function query(input, type) {
 
 // Stampa dei risultati in base al tipo (movie, tv...)
 function listPrint(obj, type) {
-    var title, originalTitle;
-
-    if (type == 'movie') {
-        title = 'title';
-        originalTitle = 'original_title';
-    } else if (type == 'tv') {
-        title = 'name';
-        originalTitle = 'original_name';
-    }
-
     var source = $('#item-template').html();
     var template = Handlebars.compile(source);
 
@@ -88,15 +78,17 @@ function listPrint(obj, type) {
         var thisResult = obj.results[i];
 
         var sample = {
-            'title': thisResult[title],
-            'original_title': thisResult[originalTitle],
-            'language': flags(thisResult.original_language),
+            'title': thisResult.title || thisResult.name,
+            'original_title': thisResult.original_title || thisResult.original_name,
+            'flags': flags(thisResult.original_language),
+            'language': thisResult.original_language.toUpperCase(),
             'vote': [thisResult.vote_average, stars(thisResult.vote_average)],
-            'type': type
+            'type': type == 'movie' ? 'Film' : 'Serie TV'
         };
 
         var html = template(sample);
-        $('#results').append(html);
+        $(`#${type}-heading`).show();
+        $(`#${type}-covers`).append(html);
     }
 }
 
@@ -111,14 +103,17 @@ function stars(num) {
 
     // Oppure con un ciclo for
     // var star = '';
-    // var vote = Math.round(num / 2);
+    // var resto = num % 2;
+    // var vote = Math.floor(num / 2);
     // for (var i = 1; i <= 5; i++) {
     //     if (i <= vote) {
     //         star += '<i class="fas fa-star"></i>';
+    //     } else if (resto != 0) {
+    //         star += '<i class="fas fa-star-half-alt"></i>';
+    //         resto = 0;
     //     } else {
-    //         star += '<i class="far fa-star"></i>';
+    //       star += '<i class="far fa-star"></i>';
     //     }
-    // }
     // return star;
 }
 
@@ -126,10 +121,25 @@ function stars(num) {
 function flags(str) {
     switch (str) {
         case 'it':
-            return ['img/it.png'];
+            return ['it'];
+        case 'de':
+            return ['de'];
+        case 'ja':
+            return ['ja'];
         case 'en':
-            return ['img/uk.png', 'img/usa.png'];
+            return ['uk', 'us'];
+        case 'fr':
+            return ['fr', 'ca'];
+        case 'es':
+            return ['es', 'ar'];
+        case 'pt':
+            return ['pt', 'br'];
         default:
-            return [str];
+            return str;
     }
 }
+
+// Controllo sul typeof di 'language' per i blocchi if-else di HB
+Handlebars.registerHelper('isNotString', function (value) {
+    return typeof (value) != 'string';
+});
